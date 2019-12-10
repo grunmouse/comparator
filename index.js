@@ -1,7 +1,23 @@
+/**
+ * @typedef {Array} SubstringPos
+ * @property {Integer} [0] - позиция начала подстроки
+ * @property {Integer} [1] - позиция после конца подстроки
+ * @property {Integer} [3] - длина подстроки
+ */
+
+/**
+ * Находит наибольшую общую строку аргументов
+ * @param {ArrayLike} a
+ * @param {ArrayLike} b
+ * @return {obj}
+ *     @property {SubstringPos} a - положение найденной подстроки в строке a
+ *     @property {SubstringPos} b - положение найденной подстроки в строке b
+ *     @property {ArrayLike} value - найденная подстрока
+ */
 function longestCS(a, b) {
 	var matrix = [];
 
-	var maxLength = 0;
+	var maxLength = 0; //Длина наибольшей подстроки
 	var aPos = 0;
 	var bPos = 0;
 	var curRow = Array(b.length).map((a)=>(0)), prewRow;
@@ -18,7 +34,8 @@ function longestCS(a, b) {
 					if(a[i] == b[j]){
 						if (i != 0 && j != 0) {
 							curRow[j] = (prevRow[j-1]||0) + 1;
-						} else {
+						} 
+						else {
 							curRow[j] = 1;
 						}
 						if (curRow[j] > maxLength) {
@@ -41,15 +58,44 @@ function longestCS(a, b) {
 	};
 }
 
+/**
+ * Разбивает строку a на три подстроки по позициям pos1 и pos2
+ * @param {ArrayLike} a - исходнная строка
+ * @param {Integer} pos1 - начало второй подстроки
+ * @param {Integer} pos2 - начало третьей подстроки
+ * @return {Array[3]<ArrayLike>} - массив подстрок
+ */
 function split2pos(a, pos1, pos2){
 	return [a.slice(0, pos1), a.slice(pos1, pos2), a.slice(pos2)];
 }
 
+/**
+ * Делает из одночленного массива - трёхчленный, где нулевой и второй члены - одночленные массивы
+ * Ссылка на массив остаётся неизменной
+ * @param {Array[1]<ArrayLike>} arr
+ * @property arr[0] :ArrayLike - разбиваемая строка
+ * @param {SubstringPos} pos - позиция подстроки
+ * После выполнения
+ * @property arr[0] :Array[1]<ArrayLike>
+ * @property arr[0][0] :ArrayLike - часть строки до начала подстроки
+ * @property arr[1] :ArrayLike - подстрока
+ * @property arr[2] :Array[1]<ArrayLike>
+ * @property arr[2][0] :ArrayLike - часть строки после конца подстроки
+ */
 function splitNWrap(arr, pos){
 	var a = arr.pop();
 	arr.push([a.slice(0, pos[0])], a.slice(pos[0], pos[1]), [a.slice(pos[1])]);
 }
 
+/**
+ * Сравнивает две строки и возвращает массивы их совпадающих и не совпатающих частей
+ * @param a:ArrayLike
+ * @param b:ArrayLike
+ * @return {Object}
+ *     //Массивы подстрок, в которых чётные элементы являются необщими, а нечётные - общими
+ *     @property a:Array<ArrayLike>
+ *     @property b:Array<ArrayLike>
+ */
 function compare(a, b){
 	a = [a];
 	b = [b];
@@ -61,7 +107,8 @@ function compare(a, b){
 			splitNWrap(b, n.b);
 			spliter(a[0], b[0]);
 			spliter(a[2], b[2]);
-			a.splice.apply(a, [0, 3].concat(a[0], [a[1]], a[2]));
+			
+			a.splice.apply(a, [0, 3].concat(a[0], [a[1]], a[2])); //Разворачиваем полученные подмассивы
 			b.splice.apply(b, [0, 3].concat(b[0], [b[1]], b[2]));
 		}
 	}
@@ -75,6 +122,9 @@ function compare(a, b){
 	
 }
 
+/**
+ * Преобразует результат сравнения в список различий
+ */
 function distinction(compare_result){
 	var a = compare_result.a, 
 		b = compare_result.b, 
@@ -144,10 +194,18 @@ function mergeDist(dist1, dist2){
 	};
 }
 
+/**
+ * Функция разделения строк на слова и теги (для xhtml)
+ */
 function wordDel(text){
 	return text.split(/(<[^>]+>|\s+)/).filter((a)=>(a));
 }
 
+/**
+ * @class Numerator
+ * Представляет объект, который хранит и дополняет карту уникальных подстрок, 
+ * и преобразует каждую строку в массив ключей, соответствующих этим подстрокам
+ */
 function Numerator(del){
 	var hash = {}, uid = 0, rev = {};
 	
@@ -199,6 +257,7 @@ function commandByDistinct(distinct){
 		}
 	});
 }
+
 function applyDistinct(a, distinct){
 	distinct = distinct.slice(0).sort((a,b)=>(b.aPos-a.aPos));
 	a = a.slice(0);
